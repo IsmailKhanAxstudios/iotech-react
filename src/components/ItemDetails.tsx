@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Item } from "../types";
-import { useState } from "react";
 interface ItemDetailsProps {
   currentItem: Item | null;
   handleUpdate: (item: Item) => void;
