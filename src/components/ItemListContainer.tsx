@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { addItem, deleteItem, updateItem } from "@/store/itemSlice";
 import { Item } from "../types";
 import OverlayModal from "./OverlayModal";
-import ItemDetails from "./itemDetails";
+import ItemDetails from "./ItemDetails";
 import ItemsList from "./ItemsList";
 
 const ItemListContainer = ({ items: initialItems }: { items: Item[] }) => {
@@ -14,28 +14,37 @@ const ItemListContainer = ({ items: initialItems }: { items: Item[] }) => {
   const [isDeleteModal, setDeleteModal] = useState(false);
 
   useEffect(() => {
-    if (initialItems.length > 0) {
-      setCurrentItem(initialItems[0]);
+    if (items.length > 0) {
+      setCurrentItem(items[0]);
     }
-  }, [initialItems]);
+  }, [items]);
 
   const handleDelete = (id: number) => {
-    setDeleteModal(true);
-    setCurrentItem(items.find((item) => item.id === id) || null);
-    setModalOpen(true);
+    const itemToDelete = items.find((item) => item.id === id);
+    if (itemToDelete) {
+      setCurrentItem(itemToDelete);
+      setDeleteModal(true);
+      setModalOpen(true);
+    }
   };
 
   const handleUpdate = (item: Item) => {
     setCurrentItem(item);
-    setModalOpen(true);
     setDeleteModal(false);
+    setModalOpen(true);
   };
 
   const handleSubmit = (item: { title: string; body: string }) => {
     if (currentItem) {
-      dispatch(updateItem({ id: currentItem.id, ...item }));
+      const updatedItem = { id: currentItem.id, ...item };
+      const updatedItems = items.map((i) =>
+        i.id === currentItem.id ? updatedItem : i
+      );
+      setItems(updatedItems);
+      dispatch(updateItem(updatedItem));
     } else {
       const newItem = { id: Date.now(), ...item };
+      setItems([newItem, ...items]);
       dispatch(addItem(newItem));
     }
     setModalOpen(false);
@@ -44,25 +53,45 @@ const ItemListContainer = ({ items: initialItems }: { items: Item[] }) => {
 
   const handleDeleteItem = () => {
     if (currentItem) {
+      const updatedItems = items.filter((item) => item.id !== currentItem.id);
+      setItems(updatedItems);
       dispatch(deleteItem(currentItem.id));
       setModalOpen(false);
+      setCurrentItem(updatedItems.length > 0 ? updatedItems[0] : null);
     }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4">
-      <ItemDetails
-        currentItem={currentItem}
-        handleUpdate={handleUpdate}
-        handleDelete={handleDelete}
-      />
+    <>
+      <div className="flex flex-col lg:flex-row gap-6 p-4">
+        <ItemDetails
+          currentItem={currentItem}
+          handleUpdate={handleUpdate}
+          handleDelete={handleDelete}
+        />
 
-      <ItemsList
-        items={items}
-        setCurrentItem={setCurrentItem}
-        updateItemsList={setItems} // Pass down the function to update the list
+        <ItemsList
+          items={items}
+          setCurrentItem={setCurrentItem}
+          updateItemsList={setItems}
+        />
+      </div>
+      <OverlayModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        title={
+          isDeleteModal ? "Delete Item" : currentItem ? "Edit Item" : "Add Item"
+        }
+        onSubmit={handleSubmit}
+        initialData={
+          currentItem
+            ? { title: currentItem.title, body: currentItem.body }
+            : undefined
+        }
+        onDelete={handleDeleteItem}
+        isDelete={isDeleteModal}
       />
-    </div>
+    </>
   );
 };
 
