@@ -1,5 +1,9 @@
 How to Run the Project Locally
 
+### Live URL
+
+https://iotech.netlify.app/
+
 1. Clone the Repository
 
 #### To clone the project repository:
@@ -27,12 +31,3 @@ Using npm: npm run dev
 Using yarn: yarn dev
 The application will be available at:
 http://localhost:3000
-
-#### Access the Application
-
-Open your browser and visit:
-
-arduino
-Copy code
-http://localhost:3000
-You should now see the application running locally.
