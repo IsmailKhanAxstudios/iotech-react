@@ -23,9 +23,7 @@ const ItemsList = ({
   };
 
   const handleReadMore = (item: Item) => {
-    setCurrentItem(item);
-    const updatedItems = items.filter((i) => i.id !== item.id);
-    updateItemsList(updatedItems);
+    setCurrentItem(item); // Update the current item without modifying the list
   };
 
   return (
